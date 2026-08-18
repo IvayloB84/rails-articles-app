@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"rails-app-deployment","namespace":"default"},"spec":{"replicas":1,"revisionHistoryLimit":2,"selector":{"matchLabels":{"app":"rails-web"}},"strategy":{"rollingUpdate":{"maxSurge":1,"maxUnavailable":0},"type":"RollingUpdate"},"template":{"metadata":{"labels":{"app":"rails-web"}},"spec":{"containers":[{"args":["bin/rails db:migrate;\nbundle exec rails server -b 0.0.0.0 -p 3000\n"],"command":["/bin/sh","-c"],"env":[{"name":"RAILS_ENV","value":"production"},{"name":"RAILS_SERVE_STATIC_FILES","value":"true"},{"name":"RAILS_LOG_TO_STDOUT","value":"true"},{"name":"DATABASE_URL","value":"sqlite3:/app/storage/production.sqlite3"},{"name":"SECRET_KEY_BASE","valueFrom":{"secretKeyRef":{"key":"SECRET_KEY_BASE","name":"rails-production-secrets"}}}],"image":"docker.io/ivaylob84/rails-gallery:latest","imagePullPolicy":"Always","name":"rails-container","ports":[{"containerPort":3000}],"readinessProbe":{"httpGet":{"path":"/rails/articles","port":3000},"initialDelaySeconds":10,"periodSeconds":5},"volumeMounts":[{"mountPath":"/app/storage","name":"sqlite-storage"}]}],"initContainers":[{"command":["sh","-c","chown -R 1000:1000 /app/storage \u0026\u0026 chmod -R 775 /app/storage"],"image":"alpine:latest","name":"volume-permissions-fix","securityContext":{"runAsUser":0},"volumeMounts":[{"mountPath":"/app/storage","name":"sqlite-storage"}]}],"volumes":[{"name":"sqlite-storage","persistentVolumeClaim":{"claimName":"rails-sqlite-pvc"}}]}}}}
+  name: rails-app-deployment
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: rails-web
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: rails-web
+    spec:
+      containers:
+      - args:
+        - |
+          bin/rails db:migrate;
+          bundle exec rails server -b 0.0.0.0 -p 3000
+        command:
+        - /bin/sh
+        - -c
+        env:
+        - name: RAILS_ENV
+          value: production
+        - name: RAILS_SERVE_STATIC_FILES
+          value: "true"
+        - name: RAILS_LOG_TO_STDOUT
+          value: "true"
+        - name: DATABASE_URL
+          value: sqlite3:/app/storage/production.sqlite3
+        - name: SECRET_KEY_BASE
+          valueFrom:
+            secretKeyRef:
+              key: SECRET_KEY_BASE
+              name: rails-production-secrets
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: Always
+        name: rails-container
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /rails/articles
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /app/storage
+          name: sqlite-storage
+      dnsPolicy: ClusterFirst
+      initContainers:
+      - command:
+        - sh
+        - -c
+        - chown -R 1000:1000 /app/storage && chmod -R 775 /app/storage
+        image: alpine:latest
+        imagePullPolicy: Always
+        name: volume-permissions-fix
+        resources: {}
+        securityContext:
+          runAsUser: 0
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /app/storage
+          name: sqlite-storage
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: sqlite-storage
+        persistentVolumeClaim:
+          claimName: rails-sqlite-pvc

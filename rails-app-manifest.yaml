@@ -1,0 +1,133 @@
+---
+# Source: rails-gallery/templates/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rails-sqlite-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+# Source: rails-gallery/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: rails-app-service
+  namespace: default
+spec:
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+  selector:
+    app: rails-web
+---
+# Source: rails-gallery/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rails-app-deployment
+  namespace: default
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: rails-web
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: rails-web
+    spec:
+      containers:
+      - name: rails-container
+        image: "docker.io/ivaylob84/rails-gallery:latest"
+        imagePullPolicy: Always
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            bin/rails db:migrate;
+            bundle exec rails server -b 0.0.0.0 -p 3000
+        env:
+        - name: RAILS_ENV
+          value: "production"
+        - name: RAILS_SERVE_STATIC_FILES
+          value: "true"
+        - name: RAILS_LOG_TO_STDOUT
+          value: "true"
+        - name: DATABASE_URL
+          value: "sqlite3:/app/storage/production.sqlite3"
+        - name: SECRET_KEY_BASE
+          valueFrom:
+            secretKeyRef:
+              key: SECRET_KEY_BASE
+              name: rails-production-secrets
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /rails/articles
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        volumeMounts:
+        - mountPath: /app/storage
+          name: sqlite-storage
+      initContainers:
+      - name: volume-permissions-fix
+        image: alpine:latest
+        imagePullPolicy: Always
+        command: ["sh", "-c", "chown -R 1000:1000 /app/storage && chmod -R 775 /app/storage"]
+        volumeMounts:
+        - mountPath: /app/storage
+          name: sqlite-storage
+      volumes:
+      - name: sqlite-storage
+        persistentVolumeClaim:
+          claimName: rails-sqlite-pvc
+
+
+---
+# Source: rails-gallery/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rails-app-ingress
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+spec:
+  ingressClassName: traefik
+  rules:
+  - http:
+      paths:
+      - path: /rails
+        pathType: Prefix
+        backend:
+          service:
+            name: rails-app-service
+            port:
+              number: 80
+      - path: /assets
+        pathType: Prefix
+        backend:
+          service:
+            name: rails-app-service
+            port:
+              number: 80

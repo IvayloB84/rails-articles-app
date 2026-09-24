@@ -100,9 +100,9 @@
   </div>
 
   <!-- Active Dynamic Comments Feed Section -->
-  <h2 class="text-2xl font-bold text-gray-900 mb-4">Comments (<%= @article.comments.count %>)</h2>
-  <div id="comments" class="space-y-4 mb-8">
-    <% if @article.comments.any? %>
+<h2 class="text-2xl font-bold text-gray-900 mb-4">Comments (<%= @comments.count %>)</h2>
+<div id="comments" class="space-y-4 mb-8">
+  <% if @comments.any? %>
       <% @article.comments.each do |comment| %>
         <% if comment.persisted? %>
           <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-4 relative group">

@@ -1,13 +1,14 @@
 class CommentsController < ApplicationController
-  # FIXED: Allows anonymous users to hit the create endpoint
+  # Allow anonymous users to post, but NOT to delete
   allow_unauthenticated_access only: [ :create ]
-  
-  # FIXED: Stops the 422 error loop, letting your 'else' block catch empty fields instead
   skip_forgery_protection only: [ :create ]
 
   def create
     @article = Article.find(params[:article_id])
     @comment = @article.comments.build(comment_params)
+    
+    # Optional step: If a user is logged in, link their account
+    @comment.user_id = authenticated_user.id if authenticated?
 
     if @comment.save
       redirect_to article_path(@article), notice: "Comment posted successfully!"
@@ -16,13 +17,26 @@ class CommentsController < ApplicationController
     end
   end
 
-  # FIXED: Added the missing destroy action to locate and delete the comment safely
   def destroy
     @article = Article.find(params[:article_id])
     @comment = @article.comments.find(params[:id])
-    @comment.destroy
 
-    redirect_to article_path(@article), notice: "Comment was deleted successfully!", status: :see_other
+    comment_author = @comment.respond_to?(:user) ? @comment.user : nil
+
+    if comment_author&.admin? && !authenticated_user&.admin?
+      redirect_to article_path(@article), alert: "Security Error: You cannot delete an Administrator's comment.", status: :unauthorized
+      return
+    end
+
+    is_admin = authenticated_user&.admin?
+    is_article_owner = authenticated? && (authenticated_user == @article.user)
+
+    if is_admin || is_article_owner
+      @comment.destroy
+      redirect_to article_path(@article), notice: "Comment was deleted successfully!", status: :see_other
+    else
+      redirect_to article_path(@article), alert: "You are not authorized to delete this comment.", status: :unauthorized
+    end
   end
 
   private

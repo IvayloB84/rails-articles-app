@@ -26,3 +26,5 @@ gem "image_processing", "~> 1.2"
 gem "bcrypt", "~> 3.1"
 
 gem "prometheus-client", "~> 4.2"
+gem "json", "~> 2.7"
+# Stable Release Alignment

@@ -6,9 +6,6 @@ class CommentsController < ApplicationController
   def create
     @article = Article.find(params[:article_id])
     @comment = @article.comments.build(comment_params)
-    
-    # Optional step: If a user is logged in, link their account
-    @comment.user_id = authenticated_user.id if authenticated?
 
     if @comment.save
       redirect_to article_path(@article), notice: "Comment posted successfully!"

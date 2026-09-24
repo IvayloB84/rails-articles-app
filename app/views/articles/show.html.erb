@@ -100,17 +100,21 @@
   </div>
 
   <!-- Active Dynamic Comments Feed Section -->
-<h2 class="text-2xl font-bold text-gray-900 mb-4">Comments (<%= @comments.count %>)</h2>
-<div id="comments" class="space-y-4 mb-8">
-  <% if @comments.any? %>
+  <h2 class="text-2xl font-bold text-gray-900 mb-4">Comments (<%= @comments.count %>)</h2>
+  <div id="comments" class="space-y-4 mb-8">
+    <% if @comments.any? %>
       <% @comments.each do |comment| %>
         <% if comment.persisted? %>
-          <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-4 relative group">
+          <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-4 relative group <%= 'opacity-75 border-amber-200 bg-amber-50/30' if comment.pending? %>">
             <div class="flex justify-between items-start mb-2">
               <p class="text-sm font-semibold text-gray-900">
-                <span class="inline-block w-2 h-2 rounded-full bg-blue-500 mr-1.5"></span>
+                <span class="inline-block w-2 h-2 rounded-full <%= comment.pending? ? 'bg-amber-400 animate-pulse' : 'bg-blue-500' %> mr-1.5"></span>
                 <%= comment.commenter.presence || "Anonymous" %> 
                 <span class="text-xs font-normal text-gray-400 ml-2">shared thoughts</span>
+                
+                <% if comment.pending? %>
+                  <span class="ml-2 inline-flex items-center rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-800 ring-1 ring-inset ring-amber-600/20">🕒 Waiting for Review</span>
+                <% end %>
               </p>
               
               <!-- Clean Red Borderless Fallback Delete Link Button -->

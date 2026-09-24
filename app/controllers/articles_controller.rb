@@ -16,10 +16,14 @@ class ArticlesController < ApplicationController
     @article = Article.find(params[:id])
     @admin_usernames = User.where(admin: true).pluck(:username)
     
-    # Standard users only see 'approved' comments, while the Admin sees everything
     if authenticated? && Current.user&.admin?
-      @comments = @article.comments.order(created_at: :asc)
+      # Admins see everything except hard rejections
+      @comments = @article.comments.where.not(status: :rejected).order(created_at: :asc)
+    elsif authenticated?
+      # Users see approved comments PLUS their own pending comments
+      @comments = @article.comments.where(status: :approved).or(@article.comments.where(status: :pending, commenter: Current.user.username)).order(created_at: :asc)
     else
+      # Guests only see approved comments
       @comments = @article.comments.approved.order(created_at: :asc)
     end
   end

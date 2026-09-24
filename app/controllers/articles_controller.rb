@@ -14,6 +14,8 @@ class ArticlesController < ApplicationController
 
   def show
     @article = Article.find(params[:id])
+    # Plucks all admin usernames into an array cache using a single quick query
+    @admin_usernames = User.where(admin: true).pluck(:username)
   end
 
   def new

@@ -114,7 +114,7 @@
               </p>
               
               <!-- Clean Red Borderless Fallback Delete Link Button -->
-              <% if authenticated? && (@article.user_id == Current.user.id || Current.user.admin?) %>
+              <% if authenticated? && (Current.user.admin? || (@article.user_id == Current.user.id && !@admin_usernames.include?(comment.commenter))) %>
                 <%= button_to "Delete", [comment.article, comment], method: :delete, form: { data: { confirm: "Are you sure?" } }, class: "text-xs font-medium text-red-500 hover:text-red-700 hover:underline cursor-pointer opacity-80 group-hover:opacity-100 transition-opacity" %>
               <% end %>
             </div>

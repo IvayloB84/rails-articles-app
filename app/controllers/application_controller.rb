@@ -7,4 +7,5 @@ class ApplicationController < ActionController::Base
   before_action :resume_session
   # FIXED: Allows anonymous guests to fetch uploaded picture files globally
   allow_unauthenticated_access if: -> { request.path.start_with?("/rails/active_storage") || params[:controller]&.start_with?("active_storage/") }
+  helper_method :authenticated_user
 end

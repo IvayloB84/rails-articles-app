@@ -1,5 +1,4 @@
 class CommentsController < ApplicationController
-  # Allow anonymous users to post, but NOT to delete
   allow_unauthenticated_access only: [ :create ]
   skip_forgery_protection only: [ :create ]
 

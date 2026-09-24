@@ -14,8 +14,14 @@ class ArticlesController < ApplicationController
 
   def show
     @article = Article.find(params[:id])
-    # Plucks all admin usernames into an array cache using a single quick query
     @admin_usernames = User.where(admin: true).pluck(:username)
+    
+    # Standard users only see 'approved' comments, while the Admin sees everything
+    if authenticated? && Current.user&.admin?
+      @comments = @article.comments.order(created_at: :asc)
+    else
+      @comments = @article.comments.approved.order(created_at: :asc)
+    end
   end
 
   def new

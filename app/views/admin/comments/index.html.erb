@@ -1,0 +1,49 @@
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <div class="mb-6 flex justify-between items-center">
+    <div>
+      <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">🛡️ Moderation Queue</h1>
+      <p class="text-sm text-gray-500 mt-1">Review and manage comments waiting for publication approval.</p>
+    </div>
+    <%= link_to "← Back to Blog", articles_path, class: "text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors" %>
+  </div>
+
+  <% if notice %>
+    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg mb-6 shadow-sm">
+      <p class="text-sm font-semibold text-green-800"><%= notice %></p>
+    </div>
+  <% end %>
+
+  <div class="bg-white shadow rounded-lg border border-gray-200 overflow-hidden">
+    <% if @pending_comments.any? %>
+      <div class="divide-y divide-gray-100">
+        <% @pending_comments.each do |comment| %>
+          <div class="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 transition-colors">
+            <div class="space-y-1.5 max-w-2xl">
+              <div class="flex items-center space-x-2 text-sm">
+                <span class="font-bold text-gray-900">👤 <%= comment.commenter.presence || "Anonymous" %></span>
+                <span class="text-gray-400">on</span>
+                <%= link_to comment.article.title, article_path(comment.article), class: "text-blue-600 hover:underline font-medium truncate max-w-xs" %>
+                <span class="text-gray-300">|</span>
+                <span class="text-xs text-gray-400"><%= comment.created_at.strftime("%b %d, %Y at %H:%M") %></span>
+              </div>
+              <p class="text-gray-700 text-sm whitespace-pre-wrap bg-gray-50 rounded border border-gray-100 p-3 italic">
+                "<%= comment.body %>"
+              </p>
+            </div>
+
+            <div class="flex items-center space-x-2 sm:shrink-0">
+              <%= button_to "Approve", approve_admin_comment_path(comment), method: :patch, class: "px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white font-semibold text-xs rounded shadow-sm transition-colors cursor-pointer" %>
+              <%= button_to "Reject", reject_admin_comment_path(comment), method: :patch, class: "px-3 py-1.5 bg-white hover:bg-gray-50 text-red-600 border border-gray-200 font-semibold text-xs rounded shadow-sm transition-colors cursor-pointer" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="p-12 text-center">
+        <div class="text-4xl mb-3">🎉</div>
+        <h3 class="text-lg font-bold text-gray-900 mb-1">Queue is empty!</h3>
+        <p class="text-sm text-gray-400 max-w-sm mx-auto">All recent comments have been processed. Excellent job maintaining the community feed.</p>
+      </div>
+    <% end %>
+  </div>
+</div>

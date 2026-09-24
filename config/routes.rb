@@ -18,7 +18,17 @@ Rails.application.routes.draw do
 
     resources :articles do
       resources :comments
-  resources :ratings, only: [:create, :destroy] 
+      resources :ratings, only: [:create, :destroy] 
+    end
+
+    # Scoped Admin Moderation Namespace Panel
+    namespace :admin do
+      resources :comments, only: [ :index ] do
+        member do
+          patch :approve
+          patch :reject
+        end
+      end
     end
   end
 

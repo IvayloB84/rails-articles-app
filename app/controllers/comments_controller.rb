@@ -5,6 +5,9 @@ class CommentsController < ApplicationController
   def create
     @article = Article.find(params[:article_id])
     @comment = @article.comments.build(comment_params)
+    
+    # FIXED: Explicitly force new comments to be pending before hitting the database
+    @comment.status = :pending
 
     if @comment.save
       redirect_to article_path(@article), notice: "Comment posted successfully!"

@@ -6,11 +6,11 @@
   </div>
 
   <!-- Render cover photo banner elegantly at the top of the content stack -->
-  <% if @article.image.attached? %>
-    <div class="w-full mb-6 rounded-2xl overflow-hidden shadow-sm max-h-96 border border-gray-200">
-      <%= image_tag @article.image, class: "w-full h-full object-cover" %>
-    </div>
-  <% end %>
+<% if @article.image.attached? %>
+  <div class="w-full max-h-96 rounded-xl overflow-hidden mb-6 border border-gray-200 shadow-inner flex justify-center bg-gray-50">
+    <%= image_tag @article.image, class: "w-full max-h-96 object-contain" %>
+  </div>
+<% end %>
 
   <!-- Main Article Body Container Wrapper -->
   <article class="bg-white shadow rounded-lg border border-gray-200 p-6 mb-8">
@@ -107,14 +107,16 @@
         <% if comment.persisted? %>
           <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-4 relative group <%= 'opacity-75 border-amber-200 bg-amber-50/30' if comment.pending? %>">
             <div class="flex justify-between items-start mb-2">
-              <p class="text-sm font-semibold text-gray-900">
+              <p class="text-sm font-semibold text-gray-900 flex items-center flex-wrap gap-y-1">
                 <span class="inline-block w-2 h-2 rounded-full <%= comment.pending? ? 'bg-amber-400 animate-pulse' : 'bg-blue-500' %> mr-1.5"></span>
+                
                 <% if profile_user = User.find_by(username: comment.commenter) %>
                   <%= link_to profile_user.username, user_path(profile_user.username), class: "text-blue-600 hover:underline hover:text-blue-800 transition-colors font-bold" %>
                 <% else %>
                   <span class="font-bold text-gray-900"><%= comment.commenter.presence || "Anonymous" %></span>
                 <% end %>
-                <span class="text-xs font-normal text-gray-400 ml-2">shared thoughts</span>
+                
+                <span class="text-xs font-normal text-gray-400 ml-2">shared thoughts <%= time_ago_in_words(comment.created_at) %> ago</span>
                 
                 <% if comment.pending? %>
                   <span class="ml-2 inline-flex items-center rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-800 ring-1 ring-inset ring-amber-600/20">🕒 Waiting for Review</span>

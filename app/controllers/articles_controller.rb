@@ -9,7 +9,12 @@ class ArticlesController < ApplicationController
   before_action :ensure_author, only: [ :edit, :update, :destroy ]
 
   def index
-    @articles = Article.all
+    if params[:search].present?
+      # Case-insensitive term search filtering both columns in 1 single fast query statement
+      @articles = Article.where("title LIKE ? OR body LIKE ?", "%#{params[:search]}%", "%#{params[:search]}%").latest
+    else
+      @articles = Article.latest
+    end
   end
 
   def show
@@ -78,7 +83,7 @@ class ArticlesController < ApplicationController
 
   private
     def article_params
-      params.expect(article: [ :title, :body, :image, :purge_image ])
+      params.expect(article: [ :title, :body, :purge_image, images: [] ])
     end
 
     # FIXED: True Authorization checkpoint method filter block

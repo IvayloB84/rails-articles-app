@@ -5,15 +5,24 @@
     <%= link_to "Write New Article", new_article_path, class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors" %>
   </div>
 
+    <!-- Native Dynamic Search Filtration Bar -->
+  <%= form_with url: articles_path, method: :get, local: true, class: "mb-8 flex gap-2" do |form| %>
+    <%= form.text_field :search, value: params[:search], placeholder: "Search articles by keywords or topics...", class: "block w-full rounded-lg border border-gray-300 p-2.5 bg-white text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 shadow-sm" %>
+    <%= form.submit "Search", class: "px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-lg shadow-sm transition-colors cursor-pointer shrink-0" %>
+    <% if params[:search].present? %>
+      <%= link_to "Clear", articles_path, class: "px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-sm rounded-lg transition-colors flex items-center shrink-0 border border-gray-200" %>
+    <% end %>
+  <% end %>
+
   <!-- Feed Grid Layout -->
   <div id="articles" class="space-y-6">
     <% if @articles.any? %>
       <% @articles.each do |article| %>
         <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group">
           
-          <% if article.image.attached? %>
+          <% if article.images.attached? %>
             <div class="w-full h-48 rounded-lg overflow-hidden mb-4 border border-gray-100 bg-gray-50 flex justify-center">
-              <%= image_tag article.image, class: "w-full h-48 object-contain group-hover:scale-[1.01] transition-transform duration-200" %>
+              <%= image_tag article.images.first, class: "w-full h-48 object-contain group-hover:scale-[1.01] transition-transform duration-200" %>
             </div>
           <% end %>
 

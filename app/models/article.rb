@@ -3,14 +3,14 @@ class Article < ApplicationRecord
   has_many :comments, dependent: :destroy
   has_many :ratings, dependent: :destroy
 
-  # Active Storage image attachment configuration
-  has_one_attached :image
+  # Plural array configuration allows multiple files per article
+  has_many_attached :images
 
   validates :title, presence: true, length: { minimum: 5 }
   validates :body, presence: true, length: { minimum: 10 }
 
-  # Content extension security alignment gate
-  validate :acceptable_image
+  # Content extension security validation loop
+  validate :acceptable_images
 
   # Chronological timeline scopes
   scope :latest, -> { order(created_at: :desc) }
@@ -18,11 +18,13 @@ class Article < ApplicationRecord
 
   private
 
-  def acceptable_image
-    return unless image.attached?
+  def acceptable_images
+    return unless images.attached?
 
-    unless image.blob.content_type.in?(%w[image/jpeg image/png image/webp image/gif])
-      errors.add(:image, "must be a JPEG, PNG, WEBP, or GIF file")
+    images.each do |image|
+      unless image.blob.content_type.in?(%w[image/jpeg image/png image/webp image/gif])
+        errors.add(:images, "must all be JPEG, PNG, WEBP, or GIF files")
+      end
     end
   end
 end

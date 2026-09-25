@@ -16,14 +16,14 @@ This project is structured as a component inside a unified GitOps ecosystem that
 
 ## Key Feature Layers
 
-- ** 30-Minute Inactivity Session Timeout:** Automatically enforces rolling user session expirations by dynamically monitoring database-backed activity timestamps (`Current.session`) inside secure cookies, mitigating stale session vulnerabilities.
-- ** In-App Admin Moderation Engine:** Provides a secure, private dashboard workspace (`/rails/admin/comments`) featuring an animated navbar notification counter to let administrators audit, approve, or reject comments before publication.
-- ** Native In-Memory Pagination:** Drastically minimizes system memory footprints and queries by serving comments in batches of 5 using native database offsets, resolving potential N+1 loop lag on your cluster storage volumes.
-- ** Dynamic User Profiles & Bios:** Renders beautiful public user dashboards summarizing membership data, Complete article output records, and approved commentary histories. Includes an interactive pure-CSS inline edit toggle box allowing users to update their biography directly from their card dashboard.
-- ** Absolute Super Admin Overrides:** Grants the System Administrator global authority to pass permission gates, modify account biographies, and moderate or delete comments across the entire platform.
-- ** Plural Media Carousels & Lightbox Windows:** Upgraded the attachment array mapping layer (`has_many_attached :images`) to accept multiple simultaneous pictures at once, featuring inline `◀ Prev / Next ▶` carousel sliders and immersive fullscreen overlay lightbox windows with large relative arrow navigation controls.
-- ** Interactive Comment Timestamps:** Renders human-readable, precise chronological updates utilizing Rails native `time_ago_in_words` parameters right next to the commenter's name header.
-- ** SQL Wildcard Search Filtering Bar:** Implemented case-insensitive keyword lookup handling natively into your homepage layout, allowing visitors to filter articles instantly by multi-column keyword matching.
+- **Inactivity Session Timeout:** Automatically enforces rolling user session expirations by dynamically monitoring database-backed activity timestamps (`Current.session`) inside secure cookies, mitigating stale session vulnerabilities.
+- **In-App Admin Moderation Engine:** Provides a secure, private dashboard workspace (`/rails/admin/comments`) featuring a navbar notification counter to let administrators audit, approve, or reject comments before publication.
+- **Native In-Memory Pagination:** Drastically minimizes system memory footprints and queries by serving comments in batches of 5 using native database offsets, resolving potential N+1 loop lag on your cluster storage volumes.
+- **Dynamic User Profiles & Bios:** Renders beautiful public user dashboards summarizing membership data, complete article output records, and approved commentary histories. Includes an interactive pure-CSS inline edit toggle box allowing users to update their biography directly from their card dashboard.
+- **Absolute Super Admin Overrides:** Grants the System Administrator global authority to pass permission gates, modify account biographies, and moderate or delete comments across the entire platform.
+- **Plural Media Carousels & Lightbox Windows:** Upgraded the attachment array mapping layer (`has_many_attached :images`) to accept multiple simultaneous pictures at once, featuring inline `Prev / Next` carousel sliders and immersive fullscreen overlay lightbox windows with large relative arrow navigation controls.
+- **Interactive Comment Timestamps:** Renders human-readable, precise chronological updates utilizing Rails native `time_ago_in_words` parameters right next to the commenter's name header.
+- **SQL Wildcard Search Filtering Bar:** Implemented case-insensitive keyword lookup handling natively into your homepage layout, allowing visitors to filter articles instantly by multi-column keyword matching.
 
 ---
 

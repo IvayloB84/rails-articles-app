@@ -51,9 +51,12 @@ class ArticlesController < ApplicationController
   end
 
   def create
-    @article = Current.user.articles.build(article_params)
+    # 1. Build the base text fields without images first
+    @article = Current.user.articles.build(article_params.except(:images))
     
     if @article.save
+      # 2. Securely append the multiple images array to the article if attached
+      @article.images.attach(params[:article][:images]) if params[:article][:images].present?
       redirect_to articles_path, notice: "Article published successfully!"
     else
       render :new, status: :unprocessable_entity
@@ -65,13 +68,20 @@ class ArticlesController < ApplicationController
   end
 
   def update
+    # 1. Handle user-selected image purges first
     if params[:article][:purge_image_ids].present?
       params[:article][:purge_image_ids].each do |img_id|
         @article.images.find_by(id: img_id)&.purge
       end
     end
 
-    if @article.update(article_params.except(:purge_image_ids))
+    # 2. Append new image files into the existing collection array without erasing old ones
+    if params[:article][:images].present?
+      @article.images.attach(params[:article][:images])
+    end
+
+    # 3. Update title and body text fields safely
+    if @article.update(article_params.except(:purge_image_ids, :images))
       redirect_to article_path(@article), notice: "Article updated successfully!"
     else
       render :edit, status: :unprocessable_entity

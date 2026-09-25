@@ -35,7 +35,9 @@
               <% end %>
             <% end %>
             
-            <span class="text-gray-600">Welcome back!</span>
+            <span class="text-gray-600">
+              Welcome back, <%= link_to Current.user.username, user_path(Current.user.username), class: "text-blue-600 hover:text-blue-800 hover:underline font-bold transition-colors" %>!
+            </span>
             <% # FIXED: Standardized link layout pathing utilizing your clean fallback parameters %>
             <%= link_to "Sign Out", signout_path, class: "text-red-500 hover:text-red-700 transition-colors" %>
           <% else %>

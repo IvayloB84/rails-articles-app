@@ -2,9 +2,8 @@ class ArticlesController < ApplicationController
   # 1. Tells Rails 8 which pages guests can view without logging in
   allow_unauthenticated_access only: [ :index, :show ]
   
-  # 🎯 FIXED: Forces Rails 8 to load your logged-in session context on public pages
-  before_action :resume_session, only: [ :index, :show ]
-  
+  before_action :resume_session
+
   # 2. Intercepts modification requests to run authorship authorization checks
   before_action :ensure_author, only: [ :edit, :update, :destroy ]
 
@@ -68,19 +67,16 @@ class ArticlesController < ApplicationController
   end
 
   def update
-    # 1. Handle user-selected image purges first
     if params[:article][:purge_image_ids].present?
       params[:article][:purge_image_ids].each do |img_id|
         @article.images.find_by(id: img_id)&.purge
       end
     end
 
-    # 2. Append new image files into the existing collection array without erasing old ones
     if params[:article][:images].present?
       @article.images.attach(params[:article][:images])
     end
 
-    # 3. Update title and body text fields safely
     if @article.update(article_params.except(:purge_image_ids, :images))
       redirect_to article_path(@article), notice: "Article updated successfully!"
     else
@@ -98,11 +94,9 @@ class ArticlesController < ApplicationController
       params.expect(article: [ :title, :body, purge_image_ids: [], images: [] ])
     end
 
-    # FIXED: True Authorization checkpoint method filter block
     def ensure_author
       @article = Article.find(params[:id])
       
-      # 👑 Absolute Admin Bypass: Check if the logged-in user object exists and is an admin
       return if Current.user&.admin?
       
       # If not an admin, restrict modification access strictly to the true author

@@ -135,6 +135,42 @@
     <% end %>
   </div>
 
+  <!-- Native Semantic Pagination Controller Navigation Bar -->
+  <% if @total_pages > 1 %>
+    <nav class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 rounded-lg shadow-sm mb-8" aria-label="Pagination">
+      <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+        <div>
+          <p class="text-sm text-gray-700">
+            Showing page <span class="font-semibold text-gray-900"><%= @page %></span> of <span class="font-semibold text-gray-900"><%= @total_pages %></span> (<span class="font-medium text-gray-500"><%= @total_comments %> total comments</span>)
+          </p>
+        </div>
+        <div>
+          <div class="inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination Control Buttons">
+            <% if @page > 1 %>
+              <%= link_to "Previous", article_path(@article, page: @page - 1), class: "inline-flex items-center rounded-l-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors" %>
+            <% else %>
+              <span class="inline-flex items-center rounded-l-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-400 cursor-not-allowed">Previous</span>
+            <% end %>
+
+            <% 1.upto(@total_pages) do |p| %>
+              <% if p == @page %>
+                <span class="inline-flex items-center border border-blue-500 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-600 z-10"><%= p %></span>
+              <% else %>
+                <%= link_to p, article_path(@article, page: p), class: "inline-flex items-center border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors" %>
+              <% end %>
+            <% end %>
+
+            <% if @page < @total_pages %>
+              <%= link_to "Next", article_path(@article, page: @page + 1), class: "inline-flex items-center rounded-r-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors" %>
+            <% else %>
+              <span class="inline-flex items-center rounded-r-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-400 cursor-not-allowed">Next</span>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </nav>
+  <% end %>
+
   <!-- Interactive Input Form Sheet Container -->
   <div class="bg-gray-50 rounded-lg border border-gray-200 p-6">
     <h3 class="text-lg font-bold text-gray-900 mb-4">Leave a Comment</h3>

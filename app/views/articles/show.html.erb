@@ -6,71 +6,76 @@
   </div>
 
   <!-- Render cover photo banner elegantly at the top of the content stack -->
-<% if @article.images.attached? %>
-  <!-- Dynamic Gallery Carousel Slider -->
-  <div class="w-full bg-gray-900 rounded-xl overflow-hidden mb-6 border border-gray-200 shadow-lg relative group h-96">
-    <div class="flex h-full overflow-x-scroll snap-x snap-mandatory scroll-smooth hide-scrollbar" id="carousel-viewport">
-      <% @article.images.each_with_index do |image, index| %>
-        <div id="slide-<%= index %>" class="w-full h-full flex-shrink-0 snap-start relative flex justify-center items-center bg-black/10">
-          
-          <!-- Clickable Link opens Lightbox pop-up instantly -->
-          <%= link_to "#lightbox-#{index}", class: "w-full h-full flex justify-center items-center cursor-zoom-in" do %>
-            <%= image_tag image, class: "max-w-full max-h-full object-contain" %>
-          <% end %>
+  <% if @article.images.attached? %>
+    <!-- Dynamic Gallery Carousel Slider -->
+    <div class="w-full bg-gray-900 rounded-xl overflow-hidden mb-6 border border-gray-200 shadow-lg relative group h-96">
+      <div class="flex h-full overflow-x-scroll snap-x snap-mandatory scroll-smooth hide-scrollbar" id="carousel-viewport">
+        <% @article.images.each_with_index do |image, index| %>
+          <div id="slide-<%= index %>" class="w-full h-full flex-shrink-0 snap-start relative flex justify-center items-center bg-black/10">
+            
+            <!-- Clickable Link opens Lightbox pop-up instantly -->
+            <%= link_to "#lightbox-#{index}", class: "w-full h-full flex justify-center items-center cursor-zoom-in" do %>
+              <%= image_tag image, class: "max-w-full max-h-full object-contain" %>
+            <% end %>
 
-          <!-- Navigation Arrow Controls overlays -->
-          <div class="absolute inset-x-4 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
-            <% if index > 0 %>
-              <a href="#slide-<%= index - 1 %>" class="pointer-events-auto p-2 rounded-full bg-black/60 hover:bg-black text-white text-xs font-bold transition">◀ Prev</a>
-            <% else %>
-              <span></span>
-            <% end %>
-            <% if index < @article.images.count - 1 %>
-              <a href="#slide-<%= index + 1 %>" class="pointer-events-auto p-2 rounded-full bg-black/60 hover:bg-black text-white text-xs font-bold transition">Next ▶</a>
-            <% end %>
+            <!-- Navigation Arrow Controls overlays -->
+            <div class="absolute inset-x-4 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+              <% if index > 0 %>
+                <a href="#slide-<%= index - 1 %>" class="pointer-events-auto p-2 rounded-full bg-black/60 hover:bg-black text-white text-xs font-bold transition">◀ Prev</a>
+              <% else %>
+                <span></span>
+              <% end %>
+              <% if index < @article.images.count - 1 %>
+                <a href="#slide-<%= index + 1 %>" class="pointer-events-auto p-2 rounded-full bg-black/60 hover:bg-black text-white text-xs font-bold transition">Next ▶</a>
+              <% end %>
+            </div>
+
+            <!-- Slide Counter Badge -->
+            <span class="absolute bottom-4 right-4 px-2 py-1 rounded bg-black/60 text-[10px] text-white font-medium">
+              <%= index + 1 %> / <%= @article.images.count %>
+            </span>
           </div>
-
-          <!-- Slide Counter Badge -->
-          <span class="absolute bottom-4 right-4 px-2 py-1 rounded bg-black/60 text-[10px] text-white font-medium">
-            <%= index + 1 %> / <%= @article.images.count %>
-          </span>
-        </div>
-      <% end %>
-    </div>
-  </div>
-
-  <!-- Pure CSS Overlay Modal Lightboxes definitions with Prev/Next Actions -->
-  <% @article.images.each_with_index do |image, index| %>
-    <div id="lightbox-<%= index %>" class="hidden target:flex fixed inset-0 bg-black/95 z-50 justify-center items-center p-4 animate-fade-in backdrop-blur-sm">
-      <a href="#" class="absolute inset-0 cursor-zoom-out" title="Close Lightbox"></a>
-      
-      <!-- Left Arrow inside the Lightbox View window -->
-      <% if index > 0 %>
-        <a href="#lightbox-<%= index - 1 %>" class="absolute left-6 text-white/70 hover:text-white text-3xl font-bold bg-white/10 hover:bg-white/20 p-4 rounded-full transition z-50 select-none">◀</a>
-      <% end %>
-
-      <div class="relative max-w-5xl max-h-[90vh] flex justify-center items-center z-10">
-        <%= image_tag image, class: "max-w-full max-h-[85vh] object-contain rounded-md shadow-2xl border border-white/10" %>
-        <a href="#" class="absolute -top-12 right-0 text-white hover:text-gray-300 font-bold text-sm bg-white/10 px-3 py-1.5 rounded-md transition border border-white/10 shadow-sm">✕ Close View</a>
+        <% end %>
       </div>
-
-      <!-- Right Arrow inside the Lightbox View window -->
-      <% if index < @article.images.count - 1 %>
-        <a href="#lightbox-<%= index + 1 %>" class="absolute right-6 text-white/70 hover:text-white text-3xl font-bold bg-white/10 hover:bg-white/20 p-4 rounded-full transition z-50 select-none">▶</a>
-      <% end %>
     </div>
+
+    <!-- Pure CSS Overlay Modal Lightboxes definitions with Window Arrow Controls -->
+    <% @article.images.each_with_index do |image, index| %>
+      <div id="lightbox-<%= index %>" class="hidden target:flex fixed inset-0 bg-black/95 z-50 justify-center items-center p-4 animate-fade-in backdrop-blur-sm group/lightbox">
+        <!-- Click background to close overlay window view -->
+        <a href="#" class="absolute inset-0 cursor-zoom-out" title="Close Lightbox"></a>
+        
+        <!-- Big Left Arrow Trigger inside the Expanded View Window -->
+        <% if index > 0 %>
+          <a href="#lightbox-<%= index - 1 %>" class="absolute left-6 text-white/50 hover:text-white text-4xl font-extrabold bg-white/5 hover:bg-white/10 p-5 rounded-full transition-all duration-200 z-50 select-none shadow-md border border-white/5">
+            ◀
+          </a>
+        <% end %>
+
+        <div class="relative max-w-5xl max-h-[90vh] flex justify-center items-center z-10">
+          <%= image_tag image, class: "max-w-full max-h-[85vh] object-contain rounded-md shadow-2xl border border-white/10" %>
+          <a href="#" class="absolute -top-12 right-0 text-white hover:text-gray-300 font-bold text-xs bg-white/10 px-3 py-1.5 rounded-md transition border border-white/10 shadow-sm">✕ Close View</a>
+        </div>
+
+        <!-- Big Right Arrow Trigger inside the Expanded View Window -->
+        <% if index < @article.images.count - 1 %>
+          <a href="#lightbox-<%= index + 1 %>" class="absolute right-6 text-white/50 hover:text-white text-4xl font-extrabold bg-white/5 hover:bg-white/10 p-5 rounded-full transition-all duration-200 z-50 select-none shadow-md border border-white/5">
+            ▶
+          </a>
+        <% end %>
+      </div>
+    <% end %>
   <% end %>
 
   <!-- Main Article Body Container Wrapper -->
   <article class="bg-white shadow rounded-lg border border-gray-200 p-6 mb-8">
-    
-    <!-- FIXED: Pristine header spacing block grouping Title and Action links on a single line under all conditions -->
+    <!-- Pristine header spacing block grouping Title and Action links on a single line -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 pb-4 border-b border-gray-100 gap-4">
       <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight"><%= @article.title %></h1>
       
-      <!-- ARTICLE ACTION LINKS: Wrapped tightly and isolated to prevent parent flex collapse -->
+      <!-- ARTICLE ACTION LINKS -->
       <div class="flex items-center text-sm font-semibold shrink-0">
-          <% if authenticated? && (@article.user_id == Current.user.id || Current.user.admin?) %>
+        <% if authenticated? && (@article.user_id == Current.user.id || Current.user.admin?) %>
           <div class="flex items-center space-x-3">
             <%= link_to "Edit Article", edit_article_path(@article), class: "text-blue-600 hover:text-blue-800 transition-colors" %>
             <span class="text-gray-300">|</span>
@@ -85,10 +90,50 @@
       <%= @article.body %>
     </div>
   </article>
+  <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+    <!-- 🌟 SECURE & COMPACT RATINGS BADGE -->
+    <div class="inline-flex items-center bg-amber-50 border border-amber-200 rounded-full px-3 py-1 text-sm text-gray-700 shadow-sm">
+      <span class="text-amber-400 font-bold mr-1.5">
+        <% average = @article.ratings.average(:score).to_f.round(1) %>
+        <% if average > 0 %>
+          <% average.to_i.times do %>★<% end %><% (5 - average.to_i).times do %>☆<% end %>
+        <% else %>
+          ☆☆☆☆☆
+        <% end %>
+      </span>
+
+      <span class="font-bold text-xs text-gray-800 mr-2">
+        <%= average > 0 ? average : "0.0" %> (<%= @article.ratings.count %>)
+      </span>
+
+      <% if authenticated? %>
+        <% existing_rating = @article.ratings.find_by(user_id: Current.user.id) %>
+        
+        <% if existing_rating %>
+          <!-- User Has Already Rated: Display inline retraction button -->
+          <div class="flex items-center gap-1.5 border-l border-amber-200 pl-2 ml-1 text-xs">
+            <span class="text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full font-bold">✓ My Rating: <%= existing_rating.score %>★</span>
+            <%= button_to "Remove", article_rating_path(@article, existing_rating), method: :delete, class: "text-red-500 hover:text-red-700 font-bold transition hover:underline cursor-pointer bg-transparent border-0 p-0 text-xs ml-1" %>
+          </div>
+        <% else %>
+          <!-- User is Logged In but Has Not Rated -->
+          <%= form_with model: [@article, @article.ratings.build], class: "flex items-center gap-1 border-l border-amber-200 pl-2 ml-1" do |form| %>
+            <div class="flex flex-row-reverse items-center gap-0.5">
+              <% 5.downto(1) do |num| %>
+                <%= form.radio_button :score, num, id: "star_#{num}", class: "hidden peer", checked: num == 5 %>
+                <label for="star_<%= num %>" class="text-base text-gray-300 peer-hover:text-amber-400 peer-checked:text-amber-400 hover:text-amber-400 cursor-pointer transition-colors px-0.5">★</label>
+              <% end %>
+            </div>
+            <%= form.submit "Rate", class: "ml-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-[10px] px-2 py-0.5 rounded transition cursor-pointer" %>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
 
   <hr class="border-t border-gray-200 my-8">
 
-  <!-- Flash alert validation banners render directly above the interaction zone -->
+  <!-- Flash alert validation banners -->
   <% if flash[:alert] %>
     <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg mb-6 shadow-sm">
       <div class="flex">
@@ -98,58 +143,14 @@
           </svg>
         </div>
         <div class="ml-3">
-          <p class="text-sm font-semibold text-red-800">
-            <%= flash[:alert] %>
-          </p>
+          <p class="text-sm font-semibold text-red-800"><%= flash[:alert] %></p>
         </div>
       </div>
     </div>
   <% end %>
 
-  <!-- 🌟 SECURE & COMPACT RATINGS BADGE (AUTHENTICATED ONLY WITH RETRACTION) -->
-  <div class="inline-flex items-center bg-amber-50 border border-amber-200 rounded-full px-3 py-1 text-sm text-gray-700 mb-6 shadow-sm">
-    <span class="text-amber-400 font-bold mr-1.5">
-      <% average = @article.ratings.average(:score).to_f.round(1) %>
-      <% if average > 0 %>
-        <% average.to_i.times do %>★<% end %><% (5 - average.to_i).times do %>☆<% end %>
-      <% else %>
-        ☆☆☆☆☆
-      <% end %>
-    </span>
-
-    <span class="font-bold text-xs text-gray-800 mr-2">
-      <%= average > 0 ? average : "0.0" %> (<%= @article.ratings.count %>)
-    </span>
-
-    <% if authenticated? %>
-      <% existing_rating = @article.ratings.find_by(user_id: Current.user.id) %>
-      
-      <% if existing_rating %>
-        <!-- User Has Already Rated: Display inline retraction button -->
-        <div class="flex items-center gap-1.5 border-l border-amber-200 pl-2 ml-1 text-xs">
-          <span class="text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full font-bold">✓ My Rating: <%= existing_rating.score %>★</span>
-          <%= button_to "Remove", article_rating_path(@article, existing_rating), method: :delete, class: "text-red-500 hover:text-red-700 font-bold transition hover:underline cursor-pointer bg-transparent border-0 p-0 text-xs ml-1" %>
-        </div>
-      <% else %>
-        <!-- User is Logged In but Has Not Rated: Show the submission star picker form -->
-        <%= form_with model: [@article, @article.ratings.build], class: "flex items-center gap-1 border-l border-amber-200 pl-2 ml-1" do |form| %>
-          <div class="flex flex-row-reverse items-center gap-0.5">
-        <% 5.downto(1) do |num| %>
-          <%= form.radio_button :score, num, id: "star_#{num}", class: "hidden peer", checked: num == 5 %>
-          <label for="star_<%= num %>" class="text-base text-gray-300 peer-hover:text-amber-400 peer-checked:text-amber-400 hover:text-amber-400 cursor-pointer transition-colors px-0.5">★</label>
-        <% end %>
-          </div>
-          <%= form.submit "Rate", class: "bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[10px] uppercase tracking-wider py-0.5 px-1.5 rounded transition shadow-xs cursor-pointer ml-1" %>
-        <% end %>
-      <% end %>
-    <% else %>
-      <!-- Unauthenticated guest fallback tip -->
-      <span class="text-[10px] text-gray-400 font-medium border-l border-amber-200 pl-2 ml-1 italic">Sign in to rate this post</span>
-    <% end %>
-  </div>
-
   <!-- Active Dynamic Comments Feed Section -->
-  <h2 class="text-2xl font-bold text-gray-900 mb-4">Comments (<%= @comments.count %>)</h2>
+  <h2 class="text-2xl font-bold text-gray-900 mb-4">Comments (<%= @total_comments %>)</h2>
   <div id="comments" class="space-y-4 mb-8">
     <% if @comments.any? %>
       <% @comments.each do |comment| %>
@@ -160,20 +161,19 @@
                 <span class="inline-block w-2 h-2 rounded-full <%= comment.pending? ? 'bg-amber-400 animate-pulse' : 'bg-blue-500' %> mr-1.5"></span>
                 
                 <% if profile_user = User.find_by(username: comment.commenter) %>
-                  <%= link_to profile_user.username, user_path(profile_user.username), class: "text-blue-600 hover:underline hover:text-blue-800 transition-colors font-bold" %>
+                  <%= link_to profile_user.username, user_path(profile_user.username), class: "text-blue-600 hover:underline hover:text-blue-800 transition-colors font-bold mr-2" %>
                 <% else %>
-                  <span class="font-bold text-gray-900"><%= comment.commenter.presence || "Anonymous" %></span>
+                  <span class="font-bold text-gray-900 mr-2"><%= comment.commenter.presence || "Anonymous" %></span>
                 <% end %>
                 
-                <span class="text-xs font-normal text-gray-400 ml-2">shared thoughts <%= time_ago_in_words(comment.created_at) %> ago</span>
+                <span class="text-xs font-normal text-gray-400">shared thoughts <%= time_ago_in_words(comment.created_at) %> ago</span>
                 
                 <% if comment.pending? %>
                   <span class="ml-2 inline-flex items-center rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-800 ring-1 ring-inset ring-amber-600/20">🕒 Waiting for Review</span>
                 <% end %>
               </p>
               
-              <!-- Clean Red Borderless Fallback Delete Link Button -->
-              <% if authenticated? && (Current.user.admin? || (@article.user_id == Current.user.id && !@admin_usernames.include?(comment.commenter))) %>
+              <% if authenticated? && (Current.user.admin? || (comment.commenter == Current.user.username && !comment.approved?) || (@article.user_id == Current.user.id && !@admin_usernames.include?(comment.commenter))) %>
                 <%= button_to "Delete", [comment.article, comment], method: :delete, form: { data: { confirm: "Are you sure?" } }, class: "text-xs font-medium text-red-500 hover:text-red-700 hover:underline cursor-pointer opacity-80 group-hover:opacity-100 transition-opacity" %>
               <% end %>
             </div>
@@ -186,7 +186,6 @@
     <% end %>
   </div>
 
-  <!-- Native Semantic Pagination Controller Navigation Bar -->
   <% if @total_pages > 1 %>
     <nav class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 rounded-lg shadow-sm mb-8" aria-label="Pagination">
       <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
@@ -222,31 +221,17 @@
     </nav>
   <% end %>
 
-  <!-- Interactive Input Form Sheet Container -->
   <div class="bg-gray-50 rounded-lg border border-gray-200 p-6">
     <h3 class="text-lg font-bold text-gray-900 mb-4">Leave a Comment</h3>
-    
-    <%= form_with model: [ @article, @article.comments.build ], class: "space-y-4" do |form| %>
-      
-      <% if authenticated? %>
-        <% # FIXED: Automatically signs the comment with the logged-in user's name without showing an input box %>
-        <%= form.hidden_field :commenter, value: Current.user.username %>
-        <p class="text-sm font-medium text-gray-600 mb-2">
-          Posting as: <span class="font-bold text-gray-900">👤 <%= Current.user.username %></span>
-        </p>
-      <% else %>
-        <% # Fallback: Anonymous visitors are still asked to type a signature name %>
-        <div>
-          <%= form.label :commenter, "Your Name", class: "block text-sm font-medium text-gray-700 mb-1" %>
-          <%= form.text_field :commenter, placeholder: "Min 3 characters", class: "block w-full max-w-md rounded-md border border-gray-300 shadow-sm p-2 bg-white text-gray-900 focus:border-blue-500 focus:ring-blue-500 text-sm" %>
-        </div>
-      <% end %>
-
+    <%= form_with model: [ @article, Comment.new ], html: { class: "space-y-4" } do |form| %>
+      <div>
+        <%= form.label :commenter, "Your Name", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.text_field :commenter, value: (authenticated? ? Current.user.username : ""), readonly: authenticated?, class: "block w-full max-w-md rounded-md border border-gray-300 shadow-sm p-2 bg-gray-50 text-gray-500 text-sm focus:outline-none" %>
+      </div>
       <div>
         <%= form.label :body, "Comment Text", class: "block text-sm font-medium text-gray-700 mb-1" %>
         <%= form.text_area :body, rows: 4, placeholder: "Type your comment here (minimum 10 characters)...", class: "block w-full max-w-xl rounded-md border border-gray-300 shadow-sm p-2 bg-white text-gray-900 focus:border-blue-500 focus:ring-blue-500 text-sm" %>
       </div>
-
       <div>
         <%= form.submit "Post Comment", class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors cursor-pointer" %>
       </div>

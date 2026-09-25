@@ -15,17 +15,30 @@ class ArticlesController < ApplicationController
   def show
     @article = Article.find(params[:id])
     @admin_usernames = User.where(admin: true).pluck(:username)
-    
-    if authenticated? && Current.user&.admin?
-      # Admins see everything except hard rejections
-      @comments = @article.comments.where.not(status: :rejected).order(created_at: :asc)
-    elsif authenticated?
-      # Users see approved comments PLUS their own pending comments
-      @comments = @article.comments.where(status: :approved).or(@article.comments.where(status: :pending, commenter: Current.user.username)).order(created_at: :asc)
-    else
-      # Guests only see approved comments
-      @comments = @article.comments.approved.order(created_at: :asc)
-    end
+
+    # Natively configuration parameters for pagination limits
+    @per_page = 5
+    @page = (params[:page] || 1).to_i
+    @page = 1 if @page < 1
+    offset = (@page - 1) * @per_page
+
+    # 1. Load the base authorized scope query context based on session rights
+    base_scope = if authenticated? && Current.user&.admin?
+                   @article.comments.where.not(status: :rejected)
+                 elsif authenticated?
+                   @article.comments.where(status: :approved)
+                                    .or(@article.comments.where(status: :pending, commenter: Current.user.username))
+                 else
+                   @article.comments.approved
+                 end
+
+    # 2. Extract total record lengths cleanly to calculate page maximum thresholds
+    @total_comments = base_scope.count
+    @total_pages = (@total_comments.to_f / @per_page).ceil
+    @total_pages = 1 if @total_pages < 1
+
+    # 3. Apply native pagination limits and offsets directly onto the final query
+    @comments = base_scope.order(created_at: :desc).limit(@per_page).offset(offset)
   end
 
   def new

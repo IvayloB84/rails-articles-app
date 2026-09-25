@@ -1,0 +1,56 @@
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <!-- Profile Header Card Layout Container -->
+  <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 mb-8 flex items-center space-x-4">
+    <div class="h-16 w-16 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl font-extrabold shadow-inner">
+      <%= @user.username[0..1].upcase %>
+    </div>
+    <div>
+      <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">👤 <%= @user.username %></h1>
+      <p class="text-sm text-gray-500 mt-0.5">Member since <%= @user.created_at.strftime("%B %Y") %></p>
+      <% if @user.admin? %>
+        <span class="mt-2 inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-700/10">👑 System Administrator</span>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Dual Split Column Dashboard Metrics -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    
+    <!-- Left Column Vector: User Articles Feed -->
+    <div class="space-y-4">
+      <h3 class="text-xl font-bold text-gray-900 border-b border-gray-100 pb-2">Published Articles (<%= @articles.count %>)</h3>
+      <% if @articles.any? %>
+        <div class="space-y-3">
+          <% @articles.each do |article| %>
+            <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition shadow-sm">
+              <%= link_to article.title, article_path(article), class: "text-lg font-bold text-blue-600 hover:underline block truncate" %>
+              <span class="text-xs text-gray-400 block mt-1">Posted on <%= article.created_at.strftime("%b %d, %Y") %></span>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-gray-400 italic py-2 text-sm">This user hasn't published any articles yet.</p>
+      <% end %>
+    </div>
+
+    <!-- Right Column Vector: User Comments Activity Logs -->
+    <div class="space-y-4">
+      <h3 class="text-xl font-bold text-gray-900 border-b border-gray-100 pb-2">Approved Comments (<%= @comments.count %>)</h3>
+      <% if @comments.any? %>
+        <div class="space-y-3">
+          <% @comments.each do |comment| %>
+            <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+              <p class="text-gray-700 text-sm italic mb-2">"<%= truncate(comment.body, length: 80) %>"</p>
+              <div class="text-xs text-gray-400">
+                Left under: <%= link_to comment.article.title, article_path(comment.article), class: "text-blue-500 hover:underline font-medium" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-gray-400 italic py-2 text-sm">This user hasn't posted any approved comments yet.</p>
+      <% end %>
+    </div>
+
+  </div>
+</div>

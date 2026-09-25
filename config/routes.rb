@@ -21,6 +21,8 @@ Rails.application.routes.draw do
       resources :ratings, only: [:create, :destroy] 
     end
 
+    resources :users, only: [ :show ], param: :username, path: "profile"
+
     # Scoped Admin Moderation Namespace Panel
     namespace :admin do
       resources :comments, only: [ :index ] do

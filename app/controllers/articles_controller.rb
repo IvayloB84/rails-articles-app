@@ -65,11 +65,13 @@ class ArticlesController < ApplicationController
   end
 
   def update
-    if article_params[:purge_image] == "1"
-      @article.image.purge
+    if params[:article][:purge_image_ids].present?
+      params[:article][:purge_image_ids].each do |img_id|
+        @article.images.find_by(id: img_id)&.purge
+      end
     end
 
-    if @article.update(article_params.except(:purge_image))
+    if @article.update(article_params.except(:purge_image_ids))
       redirect_to article_path(@article), notice: "Article updated successfully!"
     else
       render :edit, status: :unprocessable_entity
@@ -83,7 +85,7 @@ class ArticlesController < ApplicationController
 
   private
     def article_params
-      params.expect(article: [ :title, :body, :purge_image, images: [] ])
+      params.expect(article: [ :title, :body, purge_image_ids: [], images: [] ])
     end
 
     # FIXED: True Authorization checkpoint method filter block

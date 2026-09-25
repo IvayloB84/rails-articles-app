@@ -11,8 +11,7 @@ class UsersController < ApplicationController
   def update
     @user = User.find_by!(username: params[:username])
     
-    # Security checkpoint: Prevent users from editing profiles that do not belong to them
-    if authenticated? && Current.user == @user
+    if authenticated? && (Current.user == @user || Current.user.admin?)
       if @user.update(user_params)
         redirect_to user_path(@user.username), notice: "Biography updated successfully."
       else
@@ -22,6 +21,7 @@ class UsersController < ApplicationController
       redirect_to root_path, alert: "Access Denied: Action unauthorized."
     end
   end
+
 
   private
     def user_params

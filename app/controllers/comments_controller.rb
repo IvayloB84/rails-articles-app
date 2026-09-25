@@ -5,6 +5,8 @@ class CommentsController < ApplicationController
   def create
     @article = Article.find(params[:article_id])
     @comment = @article.comments.build(comment_params)
+
+    @comment.user_id = Current.user.id if authenticated? && Current.user
     
     # FIXED: Explicitly force new comments to be pending before hitting the database
     @comment.status = :pending
@@ -22,13 +24,13 @@ class CommentsController < ApplicationController
 
     comment_author = @comment.respond_to?(:user) ? @comment.user : nil
 
-    if comment_author&.admin? && !authenticated_user&.admin?
+    if comment_author&.admin? && !Current.user&.admin?
       redirect_to article_path(@article), alert: "Security Error: You cannot delete an Administrator's comment.", status: :unauthorized
       return
     end
 
-    is_admin = authenticated_user&.admin?
-    is_article_owner = authenticated? && (authenticated_user == @article.user)
+    is_admin = Current.user&.admin?
+    is_article_owner = authenticated? && (Current.user == @article.user)
 
     if is_admin || is_article_owner
       @comment.destroy

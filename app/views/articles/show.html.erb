@@ -109,7 +109,11 @@
             <div class="flex justify-between items-start mb-2">
               <p class="text-sm font-semibold text-gray-900">
                 <span class="inline-block w-2 h-2 rounded-full <%= comment.pending? ? 'bg-amber-400 animate-pulse' : 'bg-blue-500' %> mr-1.5"></span>
-                <%= comment.commenter.presence || "Anonymous" %> 
+                <% if profile_user = User.find_by(username: comment.commenter) %>
+                  <%= link_to profile_user.username, user_path(profile_user.username), class: "text-blue-600 hover:underline hover:text-blue-800 transition-colors font-bold" %>
+                <% else %>
+                  <span class="font-bold text-gray-900"><%= comment.commenter.presence || "Anonymous" %></span>
+                <% end %>
                 <span class="text-xs font-normal text-gray-400 ml-2">shared thoughts</span>
                 
                 <% if comment.pending? %>

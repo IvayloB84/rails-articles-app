@@ -60,7 +60,7 @@
 
     <!-- File Input to upload fresh pictures into the array -->
     <p class="text-xs text-gray-500 mb-2 font-medium">Choose image files to add to this article gallery:</p>
-    <%= form.file_field :images, multiple: true, class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-300 rounded-lg p-2 bg-white cursor-pointer" %>
+    <%= form.file_field :images, multiple: true, include_hidden: false, class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-300 rounded-lg p-2 bg-white cursor-pointer" %>
   </div>
 
   <%= form.submit (article.new_record? ? "Publish Article" : "Update Article"), class: "bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-5 rounded-lg text-sm cursor-pointer shadow-sm w-full transition text-center block" %>

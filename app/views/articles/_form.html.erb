@@ -1,3 +1,4 @@
+<%# app/views/articles/_form.html.erb - PART 1 %>
 <%= form_with model: article, html: { multipart: true, class: "space-y-6" } do |form| %>
 
 <% if article.errors.any? %>
@@ -30,7 +31,6 @@
       💡 You are editing this article as an Administrator. You retain full control over the header media attachment layers below.
     </div>
   <% end %>
-
   <!-- IMAGE GALLERY MEDIA MANAGEMENT LAYER -->
   <div class="mb-6 bg-gray-50 border border-gray-200 rounded-xl p-4">
     <div class="flex justify-between items-center mb-2">
@@ -61,16 +61,16 @@
       </div>
     <% end %>
 
-<!-- File Input supporting native multi-select array streams -->
-<div class="space-y-1.5">
-  <%= form.label :images, "Attach Gallery Images (Optional)", class: "block text-sm font-semibold text-gray-700" %>
-  
-  <%# FIXED: Supports selecting one or many pictures instantly on creation %>
-  <%= form.file_field :images, 
-                      multiple: true, 
-                      class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-300 rounded-lg p-2 bg-white cursor-pointer" %>
-</div>
-
+    <!-- File Input supporting native multi-select array streams -->
+    <div class="space-y-1.5">
+      <%= form.label :images, "Attach Gallery Images (Optional)", class: "block text-sm font-semibold text-gray-700" %>
+      
+      <%# FIXED: Added include_hidden: false to prevent Rails from pre-pending blank strings on unpersisted items %>
+      <%= form.file_field :images, 
+                          multiple: true, 
+                          include_hidden: false,
+                          class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-300 rounded-lg p-2 bg-white cursor-pointer" %>
+    </div>
   </div>
 
   <%= form.submit (article.new_record? ? "Publish Article" : "Update Article"), class: "bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-5 rounded-lg text-sm cursor-pointer shadow-sm w-full transition text-center block" %>

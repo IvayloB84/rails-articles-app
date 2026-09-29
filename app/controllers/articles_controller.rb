@@ -45,19 +45,15 @@ class ArticlesController < ApplicationController
   end
 
   def create
-    # 1. Initialize the article object text parameters
     @article = Current.user.articles.build(article_params.except(:images, :purge_image_ids))
     
-    # 2. Safely extract single or multiple image file blobs from the request parameters payload
-    uploaded_images = params.dig(:article, :images)
-    if uploaded_images.present?
-      # Strips out empty hidden fields and normalizes into a clean array structure
-      clean_images = Array(uploaded_images).reject(&:blank?)
-      @article.images = clean_images if clean_images.any?
-    end
-    
-    # 3. Save text fields and images simultaneously in a single operation
     if @article.save
+      raw_images = params.dig(:article, :images)
+      if raw_images.present?
+        clean_images = Array(raw_images).reject(&:blank?)
+        @article.images.attach(clean_images) if clean_images.any?
+      end
+      
       redirect_to articles_path, notice: "Article published successfully!"
     else
       render :new, status: :unprocessable_entity

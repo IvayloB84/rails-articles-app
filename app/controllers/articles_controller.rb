@@ -43,23 +43,21 @@ class ArticlesController < ApplicationController
   def new
     @article = Article.new
   end
-
   def create
-    # 1. Isolate text parameters to cleanly build the unpersisted object
+    # 1. Build the text schema fields safely
     permitted_params = params.require(:article).permit(:title, :body)
     @article = Current.user.articles.build(permitted_params)
     
-    # 2. Save text content to the database to generate a persistent Article ID mapping
+    # 2. Save to database to acquire an immutable Article parent ID mapping context
     if @article.save
-      # 3. Safely pull multi-select binaries from raw parameters post-save
+      # 3. Pull raw image data streams and attach directly to the now-persisted ID
       raw_images = params.dig(:article, :images)
       if raw_images.present?
-        # Flatten and filter out browser empty string artifacts completely
         clean_images = Array(raw_images).flatten.reject(&:blank?)
         @article.images.attach(clean_images) if clean_images.any?
       end
       
-      redirect_to articles_path, notice: "Article published successfully with gallery attachments!"
+      redirect_to articles_path, notice: "Article published successfully!"
     else
       render :new, status: :unprocessable_entity
     end

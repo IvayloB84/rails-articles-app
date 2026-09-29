@@ -45,17 +45,25 @@ class ArticlesController < ApplicationController
   end
 
   def create
-    clean_params = article_params.to_h
-    uploaded_images = clean_params.delete(:images)
+    uploaded_images = params.dig(:article, :images)
 
-    @article = Current.user.articles.build(clean_params.except(:purge_image_ids))
+    @article = Current.user.articles.build(article_params.except(:images, :purge_image_ids))
     
-    if @article.save
-      @article.images.attach(uploaded_images) if uploaded_images.present?
-      redirect_to articles_path, notice: "Article published successfully!"
-    else
-      render :new, status: :unprocessable_entity
+    ActiveRecord::Base.transaction do
+      if @article.save
+        if uploaded_images.present?
+          clean_images = Array(uploaded_images).reject(&:blank?)
+          @article.images.attach(clean_images) if clean_images.any?
+        end
+        
+        redirect_to articles_path, notice: "Article published successfully!"
+        return
+      else
+        raise ActiveRecord::Rollback
+      end
     end
+
+    render :new, status: :unprocessable_entity
   end
 
   def edit

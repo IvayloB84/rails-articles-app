@@ -45,25 +45,23 @@ class ArticlesController < ApplicationController
   end
 
   def create
-    uploaded_images = params.dig(:article, :images)
-
+    # 1. Initialize the article object text parameters
     @article = Current.user.articles.build(article_params.except(:images, :purge_image_ids))
     
-    ActiveRecord::Base.transaction do
-      if @article.save
-        if uploaded_images.present?
-          clean_images = Array(uploaded_images).reject(&:blank?)
-          @article.images.attach(clean_images) if clean_images.any?
-        end
-        
-        redirect_to articles_path, notice: "Article published successfully!"
-        return
-      else
-        raise ActiveRecord::Rollback
-      end
+    # 2. Safely extract single or multiple image file blobs from the request parameters payload
+    uploaded_images = params.dig(:article, :images)
+    if uploaded_images.present?
+      # Strips out empty hidden fields and normalizes into a clean array structure
+      clean_images = Array(uploaded_images).reject(&:blank?)
+      @article.images = clean_images if clean_images.any?
     end
-
-    render :new, status: :unprocessable_entity
+    
+    # 3. Save text fields and images simultaneously in a single operation
+    if @article.save
+      redirect_to articles_path, notice: "Article published successfully!"
+    else
+      render :new, status: :unprocessable_entity
+    end
   end
 
   def edit
@@ -105,18 +103,14 @@ class ArticlesController < ApplicationController
       active_session = Current.session || (Session.find_by(id: cookies.signed[:session_id]) if cookies.signed[:session_id])
       logged_in_user = active_session&.user
 
-      # 1. **SUPER ADMIN OVERRIDE**: Admins bypass all gates for any action
+      # 1. **SUPER ADMIN OVERRIDE**: Admins bypass all gates for any action instantly
       return if logged_in_user&.admin?
 
-      # 2. **DELETION GATE**: Block creators completely from reaching the destroy action
-      if action_name == "destroy"
-        redirect_to articles_path, alert: "Access Denied: Only a System Administrator possesses the authority to delete articles."
+      # 2. **STRICT LOCKDOWN**: Block regular users/creators from edit, update, and destroy completely
+      if ["edit", "update", "destroy"].include?(action_name)
+        redirect_to articles_path, alert: "Access Denied: Only a System Administrator possesses the authority to modify or delete articles."
         return
       end
-      
-      # 3. Regular Edit/Update author validation logic
-      if logged_in_user.nil? || @article.user_id != logged_in_user.id
-        redirect_to articles_path, alert: "Access Denied: You are not authorized to modify this article."
-      end
     end
+
 end

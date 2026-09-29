@@ -59,20 +59,15 @@
       
       <!-- ARTICLE ACTION LINKS -->
       <div class="flex items-center text-sm font-semibold shrink-0">
-        <% if authenticated? %>
+        <% if authenticated? && Current.user.admin? %>
           <div class="flex items-center space-x-3">
-            <% if @article.user_id == Current.user.id || Current.user.admin? %>
-              <%= link_to "Edit Article", edit_article_path(@article), class: "text-blue-600 hover:text-blue-800 transition-colors" %>
-            <% end %>
-            
-            <% if Current.user.admin? %>
-              <span class="text-gray-300">|</span>
-              <%= button_to "Delete Article", article_path(@article), method: :delete, form: { onclick: "return confirm('Delete this article permanently?');" }, class: "text-red-500 hover:text-red-700 hover:underline cursor-pointer bg-transparent border-0 p-0 inline" %>
-            <% end %>
+            <%# 🔒 EXCLUSIVE ADMINISTRATIVE PRIVILEGES: Hidden completely from regular users %>
+            <%= link_to "Edit Article", edit_article_path(@article), class: "text-blue-600 hover:text-blue-800 transition-colors" %>
+            <span class="text-gray-300">|</span>
+            <%= button_to "Delete Article", article_path(@article), method: :delete, form: { onclick: "return confirm('Delete this article permanently?');" }, class: "text-red-500 hover:text-red-700 hover:underline cursor-pointer bg-transparent border-0 p-0 inline" %>
           </div>
         <% end %>
       </div>
-    </div>
     
     <!-- Article Main Text Body Field -->
     <div class="prose max-w-none text-gray-700 text-lg leading-relaxed whitespace-pre-wrap mb-4">
@@ -170,7 +165,7 @@
       
       <% if Current.user.admin? %>
         <h3 class="text-lg font-bold text-blue-900 mb-1">🛡️ Administrative Commentary Workspace</h3>
-        <p class="text-xs text-blue-700 mb-4 italic">You are logged in as an Administrator. Your comments will bypass the queue and publish instantly.</p>
+        <p class="text-xs text-blue-700 mb-4 italic">You are logged in as an Administrator.</p>
       <% else %>
         <h3 class="text-lg font-bold text-gray-900 mb-1">Leave a Comment</h3>
         <p class="text-xs text-amber-600 mb-4 italic">💬 Note: Your comment will be held as pending for administrative verification before being published.</p>

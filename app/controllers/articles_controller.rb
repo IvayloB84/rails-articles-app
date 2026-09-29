@@ -45,8 +45,8 @@ class ArticlesController < ApplicationController
   end
 
 def create
-  # Let Rails natively bind everything, including the images array, during build
-  @article = Current.user.articles.build(article_params.except(:purge_image_ids))
+  # Natively passes permitted attributes and array attachments into your initializer block
+  @article = Current.user.articles.build(article_params)
   
   if @article.save
     redirect_to articles_path, notice: "Article published successfully!"

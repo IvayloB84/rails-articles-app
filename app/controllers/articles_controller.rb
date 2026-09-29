@@ -44,15 +44,15 @@ class ArticlesController < ApplicationController
     @article = Article.new
   end
   def create
-    # 1. Build the text schema fields safely
+    # 1. Permitted parameters handles text assignments cleanly
     permitted_params = params.require(:article).permit(:title, :body)
     @article = Current.user.articles.build(permitted_params)
     
-    # 2. Save to database to acquire an immutable Article parent ID mapping context
+    # 2. Extract single or multi-select file arrays directly from the incoming payload
     if @article.save
-      # 3. Pull raw image data streams and attach directly to the now-persisted ID
       raw_images = params.dig(:article, :images)
       if raw_images.present?
+        # Normalizes inputs to ensure both single choices and group choices save flawlessly
         clean_images = Array(raw_images).flatten.reject(&:blank?)
         @article.images.attach(clean_images) if clean_images.any?
       end

@@ -45,10 +45,14 @@ class ArticlesController < ApplicationController
   end
 
   def create
-    # FIXED: Let Rails natively bind everything, including the attachments matrix, during build
-    @article = Current.user.articles.build(article_params)
+    # 1. Initialize text parameters first
+    @article = Current.user.articles.build(article_params.except(:images, :purge_image_ids))
     
+    # 2. Extract and attach images explicitly inside a unified transaction loop
     if @article.save
+      if params.dig(:article, :images).present?
+        @article.images.attach(params[:article][:images])
+      end
       redirect_to articles_path, notice: "Article published successfully!"
     else
       render :new, status: :unprocessable_entity

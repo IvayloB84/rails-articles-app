@@ -45,14 +45,13 @@ class ArticlesController < ApplicationController
   end
 
   def create
-    # 1. Initialize text parameters first
-    @article = Current.user.articles.build(article_params.except(:images, :purge_image_ids))
+    clean_params = article_params.to_h
+    uploaded_images = clean_params.delete(:images)
+
+    @article = Current.user.articles.build(clean_params.except(:purge_image_ids))
     
-    # 2. Extract and attach images explicitly inside a unified transaction loop
     if @article.save
-      if params.dig(:article, :images).present?
-        @article.images.attach(params[:article][:images])
-      end
+      @article.images.attach(uploaded_images) if uploaded_images.present?
       redirect_to articles_path, notice: "Article published successfully!"
     else
       render :new, status: :unprocessable_entity

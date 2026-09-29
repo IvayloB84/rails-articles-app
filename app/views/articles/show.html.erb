@@ -221,12 +221,17 @@
     </nav>
   <% end %>
 
+<% if authenticated? %>
+  <!-- Display the submission engine exclusively to authenticated users -->
   <div class="bg-gray-50 rounded-lg border border-gray-200 p-6">
-    <h3 class="text-lg font-bold text-gray-900 mb-4">Leave a Comment</h3>
+    <h3 class="text-lg font-bold text-gray-900 mb-1">Leave a Comment</h3>
+    <p class="text-xs text-amber-600 mb-4 italic">💬 Note: Your comment will be held as pending for administrative verification before being published.</p>
+    
     <%= form_with model: [ @article, Comment.new ], html: { class: "space-y-4" } do |form| %>
       <div>
-        <%= form.label :commenter, "Your Name", class: "block text-sm font-medium text-gray-700 mb-1" %>
-        <%= form.text_field :commenter, value: (authenticated? ? Current.user.username : ""), readonly: authenticated?, class: "block w-full max-w-md rounded-md border border-gray-300 shadow-sm p-2 bg-gray-50 text-gray-500 text-sm focus:outline-none" %>
+        <%= form.label :commenter, "Your Username", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <% # Automatically binds the active session's username and permanently locks down modification access %>
+        <%= form.text_field :commenter, value: Current.user.username, readonly: true, class: "block w-full max-w-md rounded-md border border-gray-300 shadow-sm p-2 bg-gray-100 text-gray-500 text-sm focus:outline-none cursor-not-allowed" %>
       </div>
       <div>
         <%= form.label :body, "Comment Text", class: "block text-sm font-medium text-gray-700 mb-1" %>
@@ -237,4 +242,11 @@
       </div>
     <% end %>
   </div>
-</div>
+<% else %>
+  <!-- Clear visual blocker redirecting unauthenticated guest traffic away from writing endpoints -->
+  <div class="bg-gray-50 border border-gray-200 p-6 rounded-lg text-center shadow-sm">
+    <p class="text-base font-semibold text-gray-800">Want to join the conversation?</p>
+    <p class="text-xs text-gray-500 mt-1 max-w-md mx-auto">Only registered members can submit comments. All submissions undergo administrative moderation verification before publishing.</p>
+    <%= link_to 'Sign In to Comment', new_session_path, class: "bg-blue-600 text-white text-xs font-semibold px-4 py-2 rounded-md hover:bg-blue-700 transition-colors mt-4 inline-block shadow-sm cursor-pointer" %>
+  </div>
+<% end %>

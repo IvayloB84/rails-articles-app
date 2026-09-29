@@ -1,18 +1,19 @@
 class CommentsController < ApplicationController
-  allow_unauthenticated_access only: [ :create ]
-  skip_forgery_protection only: [ :create ]
+  # 1. REMOVED allow_unauthenticated_access: Guests can no longer access the create endpoint
+  # 2. REMOVED skip_forgery_protection: Restores full CSRF security tracking since only logged-in users use this form
 
   def create
     @article = Article.find(params[:article_id])
     @comment = @article.comments.build(comment_params)
 
-    @comment.user_id = Current.user.id if authenticated? && Current.user
+    # Automatically map the comment to the currently authenticated user session
+    @comment.user_id = Current.user.id
     
-    # FIXED: Explicitly force new comments to be pending before hitting the database
+    # Force new comments to be pending before hitting the database for administrative review
     @comment.status = :pending
 
     if @comment.save
-      redirect_to article_path(@article), notice: "Comment posted successfully!"
+      redirect_to article_path(@article), notice: "Comment submitted successfully! It will appear once approved by an administrator."
     else
       redirect_to article_path(@article), alert: "Could not save comment: #{@comment.errors.full_messages.join(', ')}"
     end
@@ -22,22 +23,15 @@ class CommentsController < ApplicationController
     @article = Article.find(params[:article_id])
     @comment = @article.comments.find(params[:id])
 
-    comment_author = @comment.respond_to?(:user) ? @comment.user : nil
-
-    if comment_author&.admin? && !Current.user&.admin?
-      redirect_to article_path(@article), alert: "Security Error: You cannot delete an Administrator's comment.", status: :unauthorized
+    # EXCLUSIVE SUPER ADMIN PERMISSION: Check if the current session user is an administrator
+    if authenticated? && Current.user&.admin?
+      @comment.destroy
+      redirect_to article_path(@article), notice: "Comment was deleted successfully by Admin!", status: :see_other
       return
     end
 
-    is_admin = Current.user&.admin?
-    is_article_owner = authenticated? && (Current.user == @article.user)
-
-    if is_admin || is_article_owner
-      @comment.destroy
-      redirect_to article_path(@article), notice: "Comment was deleted successfully!", status: :see_other
-    else
-      redirect_to article_path(@article), alert: "You are not authorized to delete this comment.", status: :unauthorized
-    end
+    # TOTAL BLOCK FOR EVERYONE ELSE: Regular logged-in users and article authors are denied deletion rights
+    redirect_to article_path(@article), alert: "Access Denied: Only a System Administrator can remove comments.", status: :unauthorized
   end
 
   private

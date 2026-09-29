@@ -44,16 +44,16 @@ class ArticlesController < ApplicationController
     @article = Article.new
   end
 
-  def create
-    @article = Current.user.articles.build(article_params.except(:images))
-    
-    if @article.save
-      @article.images.attach(params[:article][:images]) if params[:article][:images].present?
-      redirect_to articles_path, notice: "Article published successfully!"
-    else
-      render :new, status: :unprocessable_entity
-    end
+def create
+  # Let Rails natively bind everything, including the images array, during build
+  @article = Current.user.articles.build(article_params.except(:purge_image_ids))
+  
+  if @article.save
+    redirect_to articles_path, notice: "Article published successfully!"
+  else
+    render :new, status: :unprocessable_entity
   end
+end
 
   def edit
   end

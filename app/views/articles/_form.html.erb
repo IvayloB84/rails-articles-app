@@ -63,12 +63,12 @@
 
 <!-- File Input supporting native multi-select array streams -->
 <div class="space-y-1.5">
+  <%= form.label :images, "Attach Gallery Images (Optional)", class: "block text-sm font-semibold text-gray-700" %>
+  
+  <%# FIXED: Supports selecting one or many pictures instantly on creation %>
   <%= form.file_field :images, 
                       multiple: true, 
                       class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-300 rounded-lg p-2 bg-white cursor-pointer" %>
-  <p class="text-[11px] text-gray-400 font-medium leading-relaxed pl-1">
-    ℹ️ Hold down the <kbd class="bg-gray-100 border border-gray-300 text-gray-800 rounded px-1 py-0.5 text-[9px] font-mono shadow-sm font-bold">Ctrl</kbd> key (or <kbd class="bg-gray-100 border border-gray-300 text-gray-800 rounded px-1 py-0.5 text-[9px] font-mono shadow-sm font-bold">Cmd</kbd> on Mac) while clicking files in your explorer window to upload multiple pictures simultaneously.
-  </p>
 </div>
 
   </div>

@@ -75,15 +75,21 @@
       
       <!-- ARTICLE ACTION LINKS -->
       <div class="flex items-center text-sm font-semibold shrink-0">
-        <% if authenticated? && (@article.user_id == Current.user.id || Current.user.admin?) %>
+        <% if authenticated? %>
           <div class="flex items-center space-x-3">
-            <%= link_to "Edit Article", edit_article_path(@article), class: "text-blue-600 hover:text-blue-800 transition-colors" %>
-            <span class="text-gray-300">|</span>
-            <%= button_to "Delete Article", article_path(@article), method: :delete, form: { onclick: "return confirm('Are you absolutely sure you want to delete this article and all of its comments permanently?');" }, class: "text-red-500 hover:text-red-700 hover:underline cursor-pointer" %>
+            <%# Creators and Admins can Edit %>
+            <% if @article.user_id == Current.user.id || Current.user.admin? %>
+              <%= link_to "Edit Article", edit_article_path(@article), class: "text-blue-600 hover:text-blue-800 transition-colors" %>
+            <% end %>
+            
+            <%# STRICT DELETION BLOCK: Only visible and executable by Super Administrators %>
+            <% if Current.user.admin? %>
+              <% if @article.user_id == Current.user.id || Current.user.admin? %><span class="text-gray-300">|</span><% end %>
+              <%= button_to "Delete Article", article_path(@article), method: :delete, form: { onclick: "return confirm('Are you absolutely sure you want to delete this article and all of its comments permanently?');" }, class: "text-red-500 hover:text-red-700 hover:underline cursor-pointer" %>
+            <% end %>
           </div>
         <% end %>
       </div>
-    </div>
     
     <!-- Article Main Text Body Field -->
     <div class="prose max-w-none text-gray-700 text-lg leading-relaxed whitespace-pre-wrap">

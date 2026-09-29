@@ -4,7 +4,7 @@ class ArticlesController < ApplicationController
   
   before_action :resume_session, only: [ :index, :show ]
   
-  # 2. Intercepts modification requests to run authorship authorization checks
+  # 2. Intercepts modification requests to run structural authorization checks
   before_action :ensure_author, only: [ :edit, :update, :destroy ]
 
   def index
@@ -44,16 +44,16 @@ class ArticlesController < ApplicationController
     @article = Article.new
   end
 
-def create
-  # Natively passes permitted attributes and array attachments into your initializer block
-  @article = Current.user.articles.build(article_params)
-  
-  if @article.save
-    redirect_to articles_path, notice: "Article published successfully!"
-  else
-    render :new, status: :unprocessable_entity
+  def create
+    # FIXED: Let Rails natively bind everything, including the attachments matrix, during build
+    @article = Current.user.articles.build(article_params)
+    
+    if @article.save
+      redirect_to articles_path, notice: "Article published successfully!"
+    else
+      render :new, status: :unprocessable_entity
+    end
   end
-end
 
   def edit
   end
@@ -83,6 +83,7 @@ end
 
   private
     def article_params
+      # Hardened parameters schema array allowing images to compile natively
       params.expect(article: [ :title, :body, purge_image_ids: [], images: [] ])
     end
 
@@ -93,9 +94,16 @@ end
       active_session = Current.session || (Session.find_by(id: cookies.signed[:session_id]) if cookies.signed[:session_id])
       logged_in_user = active_session&.user
 
+      # 1. **SUPER ADMIN OVERRIDE**: Admins bypass all gates for any action
       return if logged_in_user&.admin?
+
+      # 2. **DELETION GATE**: Block creators completely from reaching the destroy action
+      if action_name == "destroy"
+        redirect_to articles_path, alert: "Access Denied: Only a System Administrator possesses the authority to delete articles."
+        return
+      end
       
-      # Enforce strict author alignment rules
+      # 3. Regular Edit/Update author validation logic
       if logged_in_user.nil? || @article.user_id != logged_in_user.id
         redirect_to articles_path, alert: "Access Denied: You are not authorized to modify this article."
       end

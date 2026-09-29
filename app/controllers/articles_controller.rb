@@ -83,7 +83,7 @@ class ArticlesController < ApplicationController
 
   private
     def article_params
-      # Hardened parameters schema array allowing images to compile natively
+      # Standard array structures work seamlessly with ActiveStorage multi-upload keys
       params.expect(article: [ :title, :body, purge_image_ids: [], images: [] ])
     end
 
